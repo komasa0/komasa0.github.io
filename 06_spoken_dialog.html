@@ -22,7 +22,7 @@
 <script>
 // 応答の定義（ハッシュ）    
 var response = {
-     "あなた,誰":["わたしはアレクサではありません","https://www.google.com/search?q=a&rlz=1C1QABZ_jaJP896JP896&oq=a&aqs=chrome..69i57j35i39i362j69i59l3j35i39i362l5.180j0j15&sourceid=chrome&ie=UTF-8"],
+     "あなた,誰":["わたしはアレクサではありません",""],
     "名前は": ["内緒です",""],
     "何歳": ["え、わたし、何歳にみえますか",""],
     "元気": ["元気ですよー",""],
@@ -30,10 +30,9 @@ var response = {
     "夢は": ["世界を冒険することです",""],
     "好きな,スポーツ":[ "けん玉です",""],
     "好きな,食べ物": ["焼肉です",""],
-    "和歌山,天気": ["和歌山の天気はたぶん晴れでしょう",""],
-    "大阪,天気": ["大阪の天気は雨です。",""],
-    "明日,天気": ["明日の天気は曇りだと思います",""],
-    "明日,和歌山,天気":[ "明日の和歌山の天気はずばり雪です",""]
+    "大阪,天気": ["大阪府の天気予報を表示します。","https://weather.yahoo.co.jp/weather/jp/27/"],
+    "和歌山,天気":[ "和歌山県の天気予報を表示します。","https://weather.yahoo.co.jp/weather/jp/30/"]
+		
 };
 
 // ウエイクワードの定義
@@ -77,7 +76,7 @@ asr.onresult = function(event){
 		
     let output_not_final = '';
     if (event.results[event.resultIndex].isFinal) { // 結果が確定（Final）のとき
-	    let ret = response[transcript];
+		
 				if(new RegExp(wake_word).test(transcript_previous)){
 							asr.abort(); // 音声認識を停止
         let answer;
@@ -94,9 +93,12 @@ asr.onresult = function(event){
                 console.log(pattern + '+' + ':' + flag_test);
                 //flag = flag && new RegExp(word).test(transcript);
             });
-
+				let ret = response[key];
             if(flag){
-		        answer = response[key];
+		        answer = ret[0];
+							if(ret[1] != ""){
+								webpage = ret[1];
+							}
                 console.log(key + " : " + answer);
             }
         });
