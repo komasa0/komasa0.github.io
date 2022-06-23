@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<h1>課題：音声対話</h1>
+<h1>課題の回答例：音声対話</h1>
 
 <p>
 <button id="startButton">start</button>
@@ -22,20 +22,23 @@
 <script>
 // 応答の定義（ハッシュ）    
 var response = {
-		"あなた,誰": ["わたしはアレクサではありません"],
-    "名前は": ["内緒です"],
-    "何歳": ["え、わたし、何歳にみえますか"],
-    "元気": ["元気ですよー"],
-    "好きな,色": ["オレンジです"],
-    "夢は": ["世界を冒険することです"],
-    "好きな,スポーツ": ["けん玉です"],
-    "好きな,食べ物": ["焼肉です"],
-		"和歌山,天気":["和歌山県の天気予報を表示します" ,"https://weather.yahoo.co.jp/weather/jp/30/"],
-		"大阪,天気":["大阪府の天気予報を表示します" ,"https://weather.yahoo.co.jp/weather/jp/27/"],
-		"東京,天気":["東京都の天気予報を表示します" ,"https://weather.yahoo.co.jp/weather/jp/13/"]
+     "あなた,誰": "わたしはアレクサではありません",
+    "名前は": "内緒です",
+    "何歳": "え、わたし、何歳にみえますか",
+    "元気": "元気ですよー",
+    "好きな,色": "オレンジです",
+    "夢は": "世界を冒険することです",
+    "好きな,スポーツ": "けん玉です",
+    "好きな,食べ物": "焼肉です",
+    "和歌山,天気": "和歌山の天気はたぶん晴れでしょう",
+    "大阪,天気": "大阪の天気は雨です。",
+    "明日,天気": "明日の天気は曇りだと思います",
+    "明日,和歌山,天気": "明日の和歌山の天気はずばり雪です"
 };
+
 // ウエイクワードの定義
 var wake_word = "OK.*コンピューター";
+
 
 const startButton = document.querySelector('#startButton'); // 開始ボタン
 const stopButton = document.querySelector('#stopButton'); // 停止ボタン
@@ -66,22 +69,19 @@ let output = ''; // 出力
 // 認識結果が出力されたときのイベントハンドラ
 asr.onresult = function(event){
     let transcript = event.results[event.resultIndex][0].transcript; // 結果文字列
-    let transcript_previous = null; // 結果文字列（ひとつ前）
-		
-		if(event.resultIndex > 0){
+		let transcript_previous = null; // 結果文字列（ひとつ前）
+
+    if(event.resultIndex > 0){
         transcript_previous = event.results[event.resultIndex - 1][0].transcript;
     }
 		
-		let output_not_final = '';
-		
+    let output_not_final = '';
     if (event.results[event.resultIndex].isFinal) { // 結果が確定（Final）のとき
 	    asr.abort(); // 音声認識を停止
-			let ret = response[transcript];
-			
-				let answer;
-        let webpage;
-				
-        let keys = Object.keys(ret[0]);
+	    
+        let answer;
+        
+        let keys = Object.keys(response);
         keys.forEach(function(key) {
             let flag = true;
             console.log(transcript);
@@ -92,28 +92,20 @@ asr.onresult = function(event){
                 console.log(pattern + '+' + ':' + flag_test);
                 //flag = flag && new RegExp(word).test(transcript);
             });
-						
-						if(flag){
-		        answer = ret[0];
-						webpage = ret[1];
+
+            if(flag){
+		        answer = response[key];
                 console.log(key + " : " + answer);
             }
         });
-				
-				if(typeof ret == 'undefined'){
+
+        if(typeof answer == 'undefined'){
 	        answer = "ごめんなさい。わかりません。";
     	}
-			
-			output += transcript + ' => ' + answer + '<br>';
-			
-			
+	
+        output += transcript + ' => ' + answer + '<br>';
+
 	    tts.text = answer;
-			tts.onend = function(event){
-            if(typeof webpage != 'undefined'){
-                location.href = webpage; // ページを移動
-            }   
-            asr.start(); // 音声認識を再開 
-	    }
 	    // 再生が終了（end）ときのイベントハンドラ（終了したときに実行される）
 	    tts.onend = function(event){
 	        asr.start(); // 音声認識を再開
@@ -125,7 +117,6 @@ asr.onresult = function(event){
     }
     resultOutput.innerHTML = output + output_not_final;
 }
-
 // 開始ボタンのイベントハンドラ
 startButton.addEventListener('click', function() {
     asr.start();
@@ -133,6 +124,7 @@ startButton.addEventListener('click', function() {
 
 // 停止ボタンのイベントハンドラ
 stopButton.addEventListener('click', function() {
+    asr.abort();
     asr.stop();
 })
 </script>
