@@ -14,7 +14,9 @@
 <button id="startButton">start</button>
 <button id="stopButton">stop</button>
 </p>
+<p>
 
+</p>
 <p>
 <div id="resultOutput"></div>
 </p>
@@ -22,16 +24,15 @@
 <script>
 // 応答の定義（ハッシュ）    
 var response = {
-    "あなた,誰":["わたしはアレクサではありません",""],
-    "名前は": ["内緒です",""],
-    "何歳": ["え、わたし、何歳にみえますか",""],
-    "元気": ["元気ですよー",""],
-    "好きな,色":[ "オレンジです",""],
-    "夢は": ["世界を冒険することです",""],
-    "好きな,スポーツ":[ "けん玉です",""],
-    "好きな,食べ物": ["焼肉です",""],
-    "大阪,天気": ["大阪府の天気予報を表示します。","https://weather.yahoo.co.jp/weather/jp/27/"],
-    "和歌山,天気":[ "和歌山県の天気予報を表示します。","https://weather.yahoo.co.jp/weather/jp/30/"]
+    "ドライフラワー":["切ない曲ですよね、さっそく聴きに行きましょう。","https://www.youtube.com/watch?v=kzZ6KXDM1RI"],
+    "新時代": ["ノリノリの曲ですよね、ワンピースの映画が楽しみです。聴きに行きましょう。","https://www.youtube.com/watch?v=1FliVTcX8bQ"],
+    "ミックスナッツ": ["流行りのアニメの曲ですよね、聴いてみましょう。","https://www.youtube.com/watch?v=CbH2F0kXgTY"],
+    "ハビット,Habit": ["SEKAI NO OWARIの曲ですね、聴いてみましょう","https://www.youtube.com/watch?v=8OZDgBmehbA"],
+    "それを愛と呼ぶなら":[ "話題のドラマの主題歌ですね。聴いてみましょう","https://www.youtube.com/watch?v=zPR-LcqWZJU"],
+    "レンズ": ["最近話題の　The First Take　でも歌われていた曲ですね、聴いてみましょう","https://www.youtube.com/watch?v=tGj-dXAX590"],
+    "エム八七,M八七":[ "ウルトラマンの映画の曲ですね、聴いてみましょう。","https://www.youtube.com/watch?v=Zhx1n6uvgUE"],
+    "初恋が泣いている": ["ドラマの主題歌ですね、あいみょんの曲は個人的に大好きなんです。聴きに行きましょう。","https://www.youtube.com/watch?v=cuWon2_WOwc"],
+	  "恋だろ": ["話題のドラマの主題歌ですね。優しい歌声が大好きです。聴いてみましょう。","https://www.youtube.com/watch?v=B4cbjIMz6DY"],
 };
 
 //APIの使用のためのURL
@@ -40,6 +41,7 @@ const APIID = "dj00aiZpPU42U1hNbGY0akplVSZzPWNvbnN1bWVyc2VjcmV0Jng9MGM-"; // あ
 const startButton = document.querySelector('#startButton'); // 開始ボタン
 const stopButton = document.querySelector('#stopButton'); // 停止ボタン
 const resultOutput = document.querySelector('#resultOutput'); // 結果出力エリア
+let count = 0;
 
 if (!'SpeechSynthesisUtterance' in window) {
     alert("あなたのブラウザはSpeech Synthesis APIに未対応です。");
@@ -135,13 +137,55 @@ asr.onresult = function(event){
 								output += transcript + ' => ' + answer + '<br>';
 								resultOutput.innerHTML = output;
 								speechSynthesis.speak(tts); // 再生
-							}else{
-								answer = 'すみません、よくわかりません'; 
+							}
+							if(res.result.method == "WEATHER"){
+								answer = '明日はどんな天気になるのでしょうかね、検索してみましょう。'
+								tts.text = answer;
+								webpage = "https://search.yahoo.co.jp/search?p=" + transcript;
 								tts.text = answer;
 								
 								// 再生が終了（end）ときのイベントハンドラ（終了したときに実行される）
 								tts.onend = function(event){
-	        			asr.start(); // 音声認識を再開
+									asr.start(); // 音声認識を再開
+									if(typeof webpage != 'undefined'){
+										window.open(webpage,'_blank','noreferrer');
+									}
+								}
+								output += transcript + ' => ' + answer + '<br>';
+								resultOutput.innerHTML = output;
+								speechSynthesis.speak(tts); // 再生
+							}
+							if(res.result.method == "TRANSIT"){
+								let From = res.result.param_from;
+								let TO = res.result.param_to;
+								answer = From + "から" + TO +"までの経路を表示します";
+								tts.text = answer;
+								webpage = "https://www.google.co.jp/maps/dir/" + From + "/" + TO;
+								tts.text = answer;
+								
+								// 再生が終了（end）ときのイベントハンドラ（終了したときに実行される）
+								tts.onend = function(event){
+									asr.start(); // 音声認識を再開
+									if(typeof webpage != 'undefined'){
+										window.open(webpage,'_blank','noreferrer');
+									}
+								}
+								output += transcript + ' => ' + answer + '<br>';
+								resultOutput.innerHTML = output;
+								speechSynthesis.speak(tts); // 再生
+									
+							}else{
+								
+								answer = 'その曲は知りませんでした。YouTubeで検索しますね。';
+								webpage = "https://www.youtube.com/results?search_query="+ transcript;
+								tts.text = answer;
+								
+								// 再生が終了（end）ときのイベントハンドラ（終了したときに実行される）
+								tts.onend = function(event){
+									asr.start(); // 音声認識を再開
+									if(typeof webpage != 'undefined'){
+										window.open(webpage,'_blank','noreferrer');
+									}
 								}
 								output += transcript + ' => ' + answer + '<br>';
 								resultOutput.innerHTML = output;
@@ -173,7 +217,16 @@ asr.onresult = function(event){
 
 // 開始ボタンのイベントハンドラ
 startButton.addEventListener('click', function() {
+	if(count == 0){
+		let first = 'こんにちは、私はJ-pop大好きロボットです。一緒にJ-popについて話しましょう。最近ハマっている曲は何ですか？'
+		tts.text = first;
+		resultOutput.innerHTML = first;
+		speechSynthesis.speak(tts); // 再生
+		count += 1;
     asr.start();
+	}else{
+		asr.start();
+	}
 })
 
 // 停止ボタンのイベントハンドラ
