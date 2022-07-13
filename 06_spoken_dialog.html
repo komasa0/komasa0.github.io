@@ -30,7 +30,7 @@ var response = {
     "ハビット,Habit": ["SEKAI NO OWARIの曲ですね、聴いてみましょう","https://www.youtube.com/watch?v=8OZDgBmehbA"],
     "それを愛と呼ぶなら":[ "話題のドラマの主題歌ですね。聴いてみましょう","https://www.youtube.com/watch?v=zPR-LcqWZJU"],
     "レンズ": ["最近話題の　The First Take　でも歌われていた曲ですね、聴いてみましょう","https://www.youtube.com/watch?v=tGj-dXAX590"],
-    "エム八七,M八七":[ "ウルトラマンの映画の曲ですね、聴いてみましょう。","https://www.youtube.com/watch?v=Zhx1n6uvgUE"],
+    "エム八七,M八七,M87":[ "ウルトラマンの映画の曲ですね、聴いてみましょう。","https://www.youtube.com/watch?v=Zhx1n6uvgUE"],
     "初恋が泣いている": ["ドラマの主題歌ですね、あいみょんの曲は個人的に大好きなんです。聴きに行きましょう。","https://www.youtube.com/watch?v=cuWon2_WOwc"],
 	  "恋だろ": ["話題のドラマの主題歌ですね。優しい歌声が大好きです。聴いてみましょう。","https://www.youtube.com/watch?v=B4cbjIMz6DY"],
 };
@@ -125,57 +125,7 @@ asr.onresult = function(event){
 								console.log(key + ": " + res.result[key])
 							});
 							
-							// method が SAY のときのみ
-							if(res.result.method == "SAY"){
-								answer = res.result.param_text_tts || res.result.param_text;
-								tts.text = answer;
-								
-								// 再生が終了（end）ときのイベントハンドラ（終了したときに実行される）
-								tts.onend = function(event){
-	        			asr.start(); // 音声認識を再開
-								}
-								output += transcript + ' => ' + answer + '<br>';
-								resultOutput.innerHTML = output;
-								speechSynthesis.speak(tts); // 再生
-							}
-							if(res.result.method == "WEATHER"){
-								answer = '明日はどんな天気になるのでしょうかね、検索してみましょう。'
-								tts.text = answer;
-								webpage = "https://search.yahoo.co.jp/search?p=" + transcript;
-								tts.text = answer;
-								
-								// 再生が終了（end）ときのイベントハンドラ（終了したときに実行される）
-								tts.onend = function(event){
-									asr.start(); // 音声認識を再開
-									if(typeof webpage != 'undefined'){
-										window.open(webpage,'_blank','noreferrer');
-									}
-								}
-								output += transcript + ' => ' + answer + '<br>';
-								resultOutput.innerHTML = output;
-								speechSynthesis.speak(tts); // 再生
-							}
-							if(res.result.method == "TRANSIT"){
-								let From = res.result.param_from;
-								let TO = res.result.param_to;
-								answer = From + "から" + TO +"までの経路を表示します";
-								tts.text = answer;
-								webpage = "https://www.google.co.jp/maps/dir/" + From + "/" + TO;
-								tts.text = answer;
-								
-								// 再生が終了（end）ときのイベントハンドラ（終了したときに実行される）
-								tts.onend = function(event){
-									asr.start(); // 音声認識を再開
-									if(typeof webpage != 'undefined'){
-										window.open(webpage,'_blank','noreferrer');
-									}
-								}
-								output += transcript + ' => ' + answer + '<br>';
-								resultOutput.innerHTML = output;
-								speechSynthesis.speak(tts); // 再生
-									
-							}else{
-								
+
 								answer = 'その曲は知りませんでした。YouTubeで検索しますね。';
 								webpage = "https://www.youtube.com/results?search_query="+ transcript;
 								tts.text = answer;
@@ -190,7 +140,7 @@ asr.onresult = function(event){
 								output += transcript + ' => ' + answer + '<br>';
 								resultOutput.innerHTML = output;
 								speechSynthesis.speak(tts); // 再生
-							}
+							
 						}
 					}
 					// HTTPリクエストの実行
@@ -218,7 +168,7 @@ asr.onresult = function(event){
 // 開始ボタンのイベントハンドラ
 startButton.addEventListener('click', function() {
 	if(count == 0){
-		let first = 'こんにちは、私はJ-pop大好きロボットです。一緒にJ-popについて話しましょう。最近ハマっている曲は何ですか？'
+		let first = 'こんにちは、私の名前はウタです。私は音楽が大好きです。一緒に音楽について話しましょう！最近ハマっている曲は何ですか？'
 		tts.text = first;
 		resultOutput.innerHTML = first;
 		speechSynthesis.speak(tts); // 再生
